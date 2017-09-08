@@ -48,7 +48,7 @@ router_interface_add lr1 ls2 10.1.1.254/24
 
 }
 
-function topo_create(){
+function topo_del(){
   vm_del vm1;
   vm_del vm2;
   switch_del ls1

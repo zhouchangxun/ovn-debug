@@ -18,7 +18,7 @@ function ns_del ()
 function ns_add ()
 {
   local name=$1;
-  ip netns add $name || return 77
+  ip netns add $name 
 }
 
 #
@@ -45,11 +45,11 @@ function ns_exec ()
 #
 function add_veth ()
 {
-namespace=$1
-vm=$1
-ip_addr=$2
-gateway=$3
-mac_addr=$4
+local namespace=$1
+local vm=$1
+local ip_addr=$2
+local gateway=$3
+local mac_addr=$4
       # add veth pair interface.
       ip link add veth-$vm type veth peer name ovs-$vm || return 77
 
@@ -76,10 +76,10 @@ function vm_add()
     echo "help: vm_add [vm_name] [ip/mask] [gateway] "
     return 1
   fi
-  vm_name=$1
-  ip=$2  #format as x.x.x.x/length
-  gw=$3
-  mac=$4
+  local vm_name=$1
+  local ip=$2  #format as x.x.x.x/length
+  local gw=$3
+  local mac=$4
 
   ns_add $vm_name 
   ns_exec $vm_name "ifconfig lo up"

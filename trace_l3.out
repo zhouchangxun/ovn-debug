@@ -1,0 +1,55 @@
+# ip,reg14=0x1,vlan_tci=0x0000,dl_src=32:2d:c7:75:e0:33,dl_dst=fa:16:9e:cf:89:88,nw_src=192.168.1.1,nw_dst=10.1.1.1,nw_proto=0,nw_tos=0,nw_ecn=0,nw_ttl=64
+
+ingress(dp="ls1", inport="lsp_ls1-vm1")
+---------------------------------------
+ 0. ls_in_port_sec_l2 (ovn-northd.c:3081): inport == "lsp_ls1-vm1", priority 50, uuid 7026715d
+    next;
+14. ls_in_l2_lkup (ovn-northd.c:3426): eth.dst == fa:16:9e:cf:89:88, priority 50, uuid 8b9d0b2f
+    outport = "lsp-ls1-to-lr1";
+    output;
+
+egress(dp="ls1", inport="lsp_ls1-vm1", outport="lsp-ls1-to-lr1")
+----------------------------------------------------------------
+ 9. ls_out_port_sec_l2 (ovn-northd.c:3508): outport == "lsp-ls1-to-lr1", priority 50, uuid 6ca52df5
+    output;
+    /* output to "lsp-ls1-to-lr1", type "patch" */
+
+ingress(dp="lr1", inport="lrp-lr1-to-ls1")
+------------------------------------------
+ 0. lr_in_admission (ovn-northd.c:4108): eth.dst == fa:16:9e:cf:89:88 && inport == "lrp-lr1-to-ls1", priority 50, uuid eab15d97
+    next;
+ 5. lr_in_ip_routing (ovn-northd.c:3652): ip4.dst == 10.1.1.0/24, priority 49, uuid 0bcfd0ce
+    ip.ttl--;
+    reg0 = ip4.dst;
+    reg1 = 10.1.1.254;
+    eth.src = fa:16:8a:6b:f2:79;
+    outport = "lrp-lr1-to-ls2";
+    flags.loopback = 1;
+    next;
+ 6. lr_in_arp_resolve (ovn-northd.c:5172): outport == "lrp-lr1-to-ls2" && reg0 == 10.1.1.1, priority 100, uuid ad0d9c6a
+    eth.dst = ee:6d:69:73:3f:e9;
+    next;
+ 7. lr_in_gw_redirect (ovn-northd.c:5323): 1, priority 0, uuid 64afbe0b
+    output;
+
+egress(dp="lr1", inport="lrp-lr1-to-ls1", outport="lrp-lr1-to-ls2")
+-------------------------------------------------------------------
+ 0. lr_out_ip_nexthop (ovn-northd.c:5356): eth.dst != 00:00:00:00:00:00, priority 250, uuid 8e9eea00
+    next;
+ 6. lr_out_delivery (ovn-northd.c:5421): outport == "lrp-lr1-to-ls2", priority 100, uuid 7fe8e8e3
+    output;
+    /* output to "lrp-lr1-to-ls2", type "patch" */
+
+ingress(dp="ls2", inport="lsp-ls2-to-lr1")
+------------------------------------------
+ 0. ls_in_port_sec_l2 (ovn-northd.c:3081): inport == "lsp-ls2-to-lr1", priority 50, uuid efb3fde3
+    next;
+14. ls_in_l2_lkup (ovn-northd.c:3386): eth.dst == ee:6d:69:73:3f:e9, priority 50, uuid d3fe73fa
+    outport = "lsp_ls2-vm2";
+    output;
+
+egress(dp="ls2", inport="lsp-ls2-to-lr1", outport="lsp_ls2-vm2")
+----------------------------------------------------------------
+ 9. ls_out_port_sec_l2 (ovn-northd.c:3508): outport == "lsp_ls2-vm2", priority 50, uuid 3b04f327
+    output;
+    /* output to "lsp_ls2-vm2", type "" */

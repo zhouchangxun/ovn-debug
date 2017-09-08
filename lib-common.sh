@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 function get_ip(){
 ns=$1
 ip=`ip netns exec $ns ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $2}'`
@@ -21,4 +22,4 @@ function alloc_mac(){
 # ip="$(get_ip vm1)"
 # mac="$(get_mac vm1)"
 
-echo "import util..."
+echo "import common..."
