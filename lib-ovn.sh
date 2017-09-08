@@ -3,7 +3,7 @@
 source lib-common.sh
 
 
-NBCTL="ovn-nbctl --db=tcp:192.168.133.71:6641 "
+#NBCTL="ovn-nbctl --db=tcp:192.168.133.71:6641 "
 
 # View a summary of the configuration
 function topo_show(){
@@ -14,10 +14,12 @@ function switch_add()
 {
   $NBCTL ls-add $1
 }
+
 function switch_del()
 {
   $NBCTL ls-del $1
 }
+
 function switch_port_add()
 {
 # Create ports on the local OVS bridge, br-int.  When ovn-controller
@@ -38,6 +40,7 @@ function switch_port_add()
 
   echo bind $vm with logical switch port $lsp
 }
+
 function switch_port_del()
 {
   sw=$1
@@ -46,14 +49,17 @@ function switch_port_del()
 
   $NBCTL lsp-del $lsp
 }
+
 function router_add()
 {
   $NBCTL lr-add $1
 }
+
 function router_del()
 {
   $NBCTL lr-del $1
 }
+
 function router_interface_add()
 {
   router=$1
@@ -70,6 +76,7 @@ function router_interface_add()
   $NBCTL lsp-set-addresses $lsp router
   $NBCTL lsp-set-options $lsp router-port=$lrp
 }
+
 function router_interface_del()
 {
   router=$1
@@ -81,6 +88,27 @@ function router_interface_del()
   $NBCTL lsp-del $lsp
 }
 
+function router_gateway_add()
+{
+  router=$1
+  switch=$2
+  net=$3 # x.x.x.x/length
+  ip=${net%/*}
+  lrp="lrp-$router-to-$switch"
+  lsp="lsp-$switch-to-$router"
+  mac="$(alloc_mac)"
+  echo "not implement..."
+}
+
+function router_gateway_del()
+{
+  router=$1
+  switch=$2
+  lrp="lrp-$router-to-$switch"
+  lsp="lsp-$switch-to-$router"
+
+  echo "not implement..."
+}
 
 echo 'import lib-ovn-net...'
 

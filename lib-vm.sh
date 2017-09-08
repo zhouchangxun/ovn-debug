@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. lib-common.sh
+
 #
 # Delete namespaces from the running OS
 #
@@ -50,8 +52,10 @@ gateway=$3
 mac_addr=$4
       # add veth pair interface.
       ip link add veth-$vm type veth peer name ovs-$vm || return 77
+
       # move veth-$vm to vm's namespace
       ip link set veth-$vm netns $vm
+
       ip link set dev ovs-$vm up
       ovs-vsctl add-port br-int ovs-$vm 
       ns_exec $vm "ip addr add $ip_addr dev veth-$vm"
@@ -68,7 +72,6 @@ mac_addr=$4
 
 function vm_add()
 {
-set -x
   if [[ $# -lt 3 ]]; then
     echo "help: vm_add [vm_name] [ip/mask] [gateway] "
     return 1
@@ -77,19 +80,19 @@ set -x
   ip=$2  #format as x.x.x.x/length
   gw=$3
   mac=$4
-set +x
+
   ns_add $vm_name 
   ns_exec $vm_name "ifconfig lo up"
-  #add_veth $vm_name $ip $gw $mac
+  add_veth $vm_name $ip $gw $mac
 }
 
 function vm_del()
 {
 set -x
   vm_name=$1
-  ip link del ovs-$vm_name
-  ovs-vsctl del-port br-int ovs-$vm_name 
-  ns_del $vm_name
+  ip link del ovs-$vm_name >/dev/null 2>&1
+  ovs-vsctl del-port br-int ovs-$vm_name >/dev/null 2>&1
+  ns_del $vm_name >/dev/null 2>&1
 set +x
 }
 
@@ -101,8 +104,8 @@ function vm_list()
 {
   ip netns
 }
+
 echo 'import lib-vm-port...'
-echo "help: vm_add [vm_name] [ip/mask] [gateway] "
 
 # end
 
